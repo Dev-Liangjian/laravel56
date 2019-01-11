@@ -4,7 +4,7 @@ namespace App;
 
 use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\Model;
-
+use \Illuminate\Database\Eloquent\Builder as Builder;
 //表 => posts
 class Post extends Model
 {
@@ -105,4 +105,41 @@ class Post extends Model
         return $this->hasMany('App\Like','post_id','id')->where('user_id','=',$user_id);
     }
 
+    /**
+     * 利用scope方法实现获取[属于某用户]的文章
+     * @param  Builder $query    [description]
+     * @param  integer  $user_id [description]
+     * @return Builder           [description]
+     */
+    public function scopeCreateBy(Builder $query, $user_id)
+    {
+        return $query->where('user_id', '=', $user_id);
+    }
+
+    /**
+     * 关联 App\PostTopics 模型
+     * 获取当前文章的所有标签
+     * @return [type] [description]
+     */
+    public function postTopics()
+    {
+        return $this->hasMany(\App\PostTopics::class,'post_id','id');
+    }
+
+    /**
+     * 利用scope方法实现获取[不拥有某标签]的所有文章
+     * @param  Builder $query     [description]
+     * @param  integer  $topic_id [description]
+     * @return Builder            [description]
+     */
+    public function scopeUnTopicBy(Builder $query, $topic_id)
+    {
+        //(利用基于不存在的关联查询doesntHave)获得不拥有任何标签的文章
+        // return $query->doesntHave('postTopics');
+        
+        //在不拥有任何标签的文章 的基础上对标签进行检查(排除某个特殊的标签)
+        return $query->whereDoesntHave('postTopics', function($q) use($topic_id){
+            $q->where('topic_id','=',$topic_id);
+        });
+    }
 }

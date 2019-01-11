@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Schema;
 
 use App\Libraries\MyEsEngine;
@@ -13,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap any application services.
-     *
+     * 在容器中注册绑定。
      * @return void
      */
     public function boot()
@@ -25,13 +26,19 @@ class AppServiceProvider extends ServiceProvider
          * 即在 AppServiceProvider 中调用 Schema::defaultStringLength 方法来配置它
          */
         Schema::defaultStringLength(191); //Solved by increasing String Length
+
+        //视图合成器
+        View::composer('layout.sidebar',function($view){
+            $topics = \App\Topic::all();
+            $view->with('topics', $topics);
+        });
     }
 
 
 
     /**
      * Register any application services.
-     *
+     * 注册服务器提供者。
      * @return void
      */
     public function register()

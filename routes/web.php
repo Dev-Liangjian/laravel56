@@ -13,6 +13,7 @@
 
 //Web路由文件 路由是有先后顺序的，当发生路由冲突时前面的路由先解析
 
+
 //用户注册
 Route::get('/register','RegisterController@index');
 Route::post('/register','RegisterController@register');
@@ -57,6 +58,10 @@ Route::middleware(['checkLogin'])->group(function () {
 	Route::post('/user/{user}/unfollow','UserController@unfollow');
 });
 
+//专题详情页
+Route::get('/topic/{topic}','TopicController@show');
+//投稿到某专题
+Route::post('/topic/{topic}/submit','TopicController@submit');
 
 //图片上传
 Route::post('/posts/image/upload','PostController@imageUpload');
